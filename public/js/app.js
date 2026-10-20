@@ -1,23 +1,23 @@
 /**
- * Church Event Ride Sharing - Mobile-first Application Logic
+ * Caronas do Evento da Igreja - Lógica do Aplicativo Mobile
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- DOM Elements ---
+  // --- Elementos do DOM ---
   const tabBtnFind = document.getElementById('tabBtnFind');
   const tabBtnOffer = document.getElementById('tabBtnOffer');
   const paneFind = document.getElementById('paneFind');
   const paneOffer = document.getElementById('paneOffer');
   const ridesCountBadge = document.getElementById('ridesCountBadge');
 
-  // Find Pane Elements
+  // Elementos da Aba Encontrar Carona
   const ridesListContainer = document.getElementById('ridesListContainer');
   const ridesEmptyState = document.getElementById('ridesEmptyState');
   const rideSearchInput = document.getElementById('rideSearchInput');
   const btnRefreshRides = document.getElementById('btnRefreshRides');
   const btnGoToOffer = document.getElementById('btnGoToOffer');
 
-  // Offer Pane Elements
+  // Elementos da Aba Oferecer Carona
   const offerVerifyStep = document.getElementById('offerVerifyStep');
   const offerDetailsStep = document.getElementById('offerDetailsStep');
   const offerSuccessStep = document.getElementById('offerSuccessStep');
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRemoveOffer = document.getElementById('btnRemoveOffer');
   const btnViewInList = document.getElementById('btnViewInList');
 
-  // Organizer Modal Elements
+  // Elementos do Modal do Organizador
   const btnOpenOrganizer = document.getElementById('btnOpenOrganizer');
   const organizerModal = document.getElementById('organizerModal');
   const btnCloseModal = document.getElementById('btnCloseModal');
@@ -73,21 +73,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const toastContainer = document.getElementById('toastContainer');
 
-  // --- App State ---
+  // --- Estado da Aplicação ---
   let allRides = [];
   let verifiedAttendee = null; // { name, email, phone }
-  let activeRideForDriver = null; // existing ride if any
+  let activeRideForDriver = null; // carona ativa se houver
   let pendingCSVContent = null;
   let organizerPasscode = sessionStorage.getItem('organizer_passcode') || '';
 
-  // --- Helper: Toast Notification ---
+  // --- Auxiliar: Notificação Toast ---
   function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerHTML = `<span>${message}</span>`;
     toastContainer.appendChild(toast);
 
-    // Trigger reflow & show
     setTimeout(() => toast.classList.add('show'), 10);
     setTimeout(() => {
       toast.classList.remove('show');
@@ -95,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3500);
   }
 
-  // --- Helper: Sanitize Text for HTML ---
+  // --- Auxiliar: Sanitizar texto para HTML ---
   function escapeHTML(str) {
     const p = document.createElement('p');
     p.textContent = str || '';
     return p.innerHTML;
   }
 
-  // --- Helper: Format Initials for Avatar ---
+  // --- Auxiliar: Iniciais para o avatar ---
   function getInitials(name) {
     if (!name) return '??';
     const parts = name.trim().split(/\s+/);
@@ -110,12 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
-  // --- Helper: Format Clean Phone for tel: link ---
+  // --- Auxiliar: Formatar telefone para link tel: ---
   function formatTelLink(phone) {
     return String(phone || '').replace(/[^0-9+]/g, '');
   }
 
-  // --- Tab Navigation ---
+  // --- Navegação por Abas ---
   function switchTab(tabId) {
     if (tabId === 'find') {
       tabBtnFind.classList.add('active');
@@ -136,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnGoToOffer?.addEventListener('click', () => switchTab('offer'));
   btnViewInList?.addEventListener('click', () => switchTab('find'));
 
-  // --- Fetch & Render Active Rides ---
+  // --- Carregar e Renderizar Caronas Ativas ---
   async function fetchRides() {
     btnRefreshRides.classList.add('spinning');
     try {
@@ -147,11 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRides(allRides);
         updateRidesCount(allRides.length);
       } else {
-        showToast('Unable to load rides. Please try again.', 'error');
+        showToast('Não foi possível carregar as caronas. Tente novamente.', 'error');
       }
     } catch (err) {
-      console.error('Error fetching rides:', err);
-      showToast('Network error loading rides.', 'error');
+      console.error('Erro ao buscar caronas:', err);
+      showToast('Erro de conexão ao carregar as caronas.', 'error');
     } finally {
       setTimeout(() => btnRefreshRides.classList.remove('spinning'), 500);
     }
@@ -180,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const initials = getInitials(ride.driverName);
       const telLink = formatTelLink(ride.phone);
       const seatsText = ride.isFull 
-        ? '⚠️ Ride Full' 
-        : `💺 ${ride.seats} ${ride.seats === 1 ? 'seat' : 'seats'} left`;
+        ? '⚠️ Carona Lotada' 
+        : `💺 ${ride.seats} ${ride.seats === 1 ? 'vaga livre' : 'vagas livres'}`;
       const seatsBadgeClass = ride.isFull ? 'full' : 'available';
 
       card.innerHTML = `
@@ -190,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="driver-avatar" aria-hidden="true">${initials}</div>
             <div class="driver-meta">
               <h3>${escapeHTML(ride.driverName)}</h3>
-              <span class="driver-verified-tag">✓ Verified Attendee</span>
+              <span class="driver-verified-tag">✓ Participante Confirmado</span>
             </div>
           </div>
           <span class="ride-pill-seats ${seatsBadgeClass}">${seatsText}</span>
@@ -199,16 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="ride-details-row">
           <span class="ride-time-icon" aria-hidden="true">⏰</span>
           <div>
-            <span class="ride-time-label">Departure:</span>
+            <span class="ride-time-label">Saída:</span>
             <span>${escapeHTML(ride.departureTime)}</span>
           </div>
         </div>
 
         <div class="call-action-wrapper">
-          <a href="tel:${telLink}" class="btn-call" aria-label="Call driver ${escapeHTML(ride.driverName)} at ${escapeHTML(ride.phone)}">
-            <span aria-hidden="true">📞</span> Call ${escapeHTML(ride.phone)}
+          <a href="tel:${telLink}" class="btn-call" aria-label="Ligar para o motorista ${escapeHTML(ride.driverName)} no número ${escapeHTML(ride.phone)}">
+            <span aria-hidden="true">📞</span> Ligar (${escapeHTML(ride.phone)})
           </a>
-          <a href="sms:${telLink}" class="btn-sms" title="Send SMS" aria-label="Send SMS to ${escapeHTML(ride.driverName)}">
+          <a href="sms:${telLink}" class="btn-sms" title="Enviar SMS" aria-label="Enviar SMS para ${escapeHTML(ride.driverName)}">
             <span aria-hidden="true">💬</span> SMS
           </a>
         </div>
@@ -218,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Real-time Search Filter ---
+  // --- Filtro de Busca em Tempo Real ---
   rideSearchInput.addEventListener('input', (e) => {
     const term = e.target.value.trim().toLowerCase();
     if (!term) {
@@ -235,14 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnRefreshRides.addEventListener('click', fetchRides);
 
-  // --- Offer a Ride: Step 1 Email Verification ---
+  // --- Oferecer Carona: Etapa 1 Verificação de E-mail ---
   verifyEmailForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = driverEmailInput.value.trim();
     if (!email) return;
 
     btnVerifyEmail.disabled = true;
-    btnVerifyEmail.innerHTML = 'Verifying...';
+    btnVerifyEmail.innerHTML = 'Verificando...';
     verifyErrorBox.style.display = 'none';
 
     try {
@@ -258,28 +257,28 @@ document.addEventListener('DOMContentLoaded', () => {
         activeRideForDriver = data.existingRide;
         setupOfferDetailsStep();
       } else {
-        verifyErrorMessage.textContent = data.message || 'Email not found on the registered church attendee list. Please contact the organizers.';
+        verifyErrorMessage.textContent = data.message || 'E-mail não encontrado na lista de participantes. Por favor, entre em contato com a organização do evento.';
         verifyErrorBox.style.display = 'block';
       }
     } catch (err) {
-      console.error('Verification error:', err);
-      verifyErrorMessage.textContent = 'Connection error. Please check your internet connection.';
+      console.error('Erro de verificação:', err);
+      verifyErrorMessage.textContent = 'Erro de conexão. Verifique sua conexão com a internet.';
       verifyErrorBox.style.display = 'block';
     } finally {
       btnVerifyEmail.disabled = false;
-      btnVerifyEmail.innerHTML = '<span>Verify & Continue</span> →';
+      btnVerifyEmail.innerHTML = '<span>Verificar e Continuar</span> →';
     }
   });
 
-  // --- Offer a Ride: Step 2 Setup ---
+  // --- Oferecer Carona: Etapa 2 Formulário de Detalhes ---
   function setupOfferDetailsStep() {
     verifiedDriverName.textContent = verifiedAttendee.name;
-    verifiedDriverPhone.textContent = `Registered Phone: ${verifiedAttendee.phone}`;
+    verifiedDriverPhone.textContent = `Telefone cadastrado: ${verifiedAttendee.phone}`;
 
     if (activeRideForDriver) {
-      // Driver ALREADY has an active ride: enable update / manage mode
+      // Motorista já possui uma carona ativa: modo de atualização
       existingOfferAlert.style.display = 'block';
-      existingOfferSummary.textContent = `Current offer: Departure at ${activeRideForDriver.departureTime}, ${activeRideForDriver.seats} seats available.`;
+      existingOfferSummary.textContent = `Oferta atual: Saída às ${activeRideForDriver.departureTime}, ${activeRideForDriver.seats} ${activeRideForDriver.seats === 1 ? 'vaga disponível' : 'vagas disponíveis'}.`;
       
       departureTimeInput.value = activeRideForDriver.departureTime;
       updateSeatsValue(activeRideForDriver.seats);
@@ -287,17 +286,17 @@ document.addEventListener('DOMContentLoaded', () => {
       fullToggleGroup.style.display = 'block';
       markFullCheckbox.checked = Boolean(activeRideForDriver.isFull);
 
-      btnPublishOffer.textContent = 'Update Ride Offer';
+      btnPublishOffer.textContent = 'Atualizar Oferta de Carona';
       btnRemoveOffer.style.display = 'block';
     } else {
-      // New ride offer
+      // Nova oferta de carona
       existingOfferAlert.style.display = 'none';
       fullToggleGroup.style.display = 'none';
       markFullCheckbox.checked = false;
       departureTimeInput.value = '';
       updateSeatsValue(3);
 
-      btnPublishOffer.textContent = 'Publish Ride Offer';
+      btnPublishOffer.textContent = 'Publicar Oferta de Carona';
       btnRemoveOffer.style.display = 'none';
     }
 
@@ -306,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     offerSuccessStep.style.display = 'none';
   }
 
-  // Change Email Button
+  // Botão Alterar E-mail
   btnChangeEmail.addEventListener('click', () => {
     verifiedAttendee = null;
     activeRideForDriver = null;
@@ -315,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
     offerSuccessStep.style.display = 'none';
   });
 
-  // Departure Time Preset Chips
+  // Chips de Sugestão de Horário
   document.querySelectorAll('.chip-btn').forEach(chip => {
     chip.addEventListener('click', () => {
       departureTimeInput.value = chip.dataset.time;
@@ -323,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Seats Stepper
+  // Contador de Vagas
   function updateSeatsValue(val) {
     const num = Math.max(1, Math.min(10, parseInt(val, 10) || 1));
     seatsHiddenInput.value = num;
@@ -340,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSeatsValue(current + 1);
   });
 
-  // Publish / Update Ride Offer
+  // Publicar / Atualizar Oferta de Carona
   publishRideForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!verifiedAttendee) return;
@@ -350,13 +349,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const isFull = markFullCheckbox.checked;
 
     if (!departureTime) {
-      showToast('Please enter your departure time.', 'error');
+      showToast('Por favor, informe o seu horário de saída.', 'error');
       departureTimeInput.focus();
       return;
     }
 
     btnPublishOffer.disabled = true;
-    btnPublishOffer.textContent = 'Saving...';
+    btnPublishOffer.textContent = 'Salvando...';
 
     try {
       const res = await fetch('/api/rides', {
@@ -371,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // If full toggle was marked, apply update
+        // Se a opção de marcar como lotada foi alterada
         if (activeRideForDriver && isFull !== activeRideForDriver.isFull) {
           await fetch(`/api/rides/${activeRideForDriver.id}`, {
             method: 'PATCH',
@@ -383,35 +382,35 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
 
-        // Show success
-        document.getElementById('successHeading').textContent = activeRideForDriver ? 'Ride Offer Updated!' : 'Ride Offer Published!';
-        document.getElementById('successMessage').textContent = `Your ride listing for ${departureTime} (${seats} ${seats === 1 ? 'seat' : 'seats'}) is active. Attendees can call you directly to coordinate.`;
+        // Exibir tela de sucesso
+        document.getElementById('successHeading').textContent = activeRideForDriver ? 'Oferta de Carona Atualizada!' : 'Oferta de Carona Publicada!';
+        document.getElementById('successMessage').textContent = `Sua carona para ${departureTime} (${seats} ${seats === 1 ? 'vaga' : 'vagas'}) já está ativa. Os participantes podem ligar diretamente para você combinar os detalhes.`;
         
         offerDetailsStep.style.display = 'none';
         offerSuccessStep.style.display = 'block';
-        showToast('Your ride listing is live!', 'success');
+        showToast('Sua oferta de carona já está disponível!', 'success');
         fetchRides();
       } else {
-        showToast(data.message || 'Failed to publish ride.', 'error');
+        showToast(data.message || 'Falha ao salvar carona.', 'error');
       }
     } catch (err) {
-      console.error('Publish error:', err);
-      showToast('Network error saving ride.', 'error');
+      console.error('Erro ao publicar:', err);
+      showToast('Erro de conexão ao salvar carona.', 'error');
     } finally {
       btnPublishOffer.disabled = false;
-      btnPublishOffer.textContent = activeRideForDriver ? 'Update Ride Offer' : 'Publish Ride Offer';
+      btnPublishOffer.textContent = activeRideForDriver ? 'Atualizar Oferta de Carona' : 'Publicar Oferta de Carona';
     }
   });
 
-  // Remove / Cancel Offer
+  // Cancelar e Remover Oferta de Carona
   btnRemoveOffer.addEventListener('click', async () => {
     if (!activeRideForDriver || !verifiedAttendee) return;
 
-    const confirmed = confirm('Are you sure you want to cancel and remove your active ride offer?');
+    const confirmed = confirm('Tem certeza de que deseja cancelar e remover sua oferta de carona?');
     if (!confirmed) return;
 
     btnRemoveOffer.disabled = true;
-    btnRemoveOffer.textContent = 'Removing...';
+    btnRemoveOffer.textContent = 'Removendo...';
 
     try {
       const res = await fetch(`/api/rides/${activeRideForDriver.id}?email=${encodeURIComponent(verifiedAttendee.email)}`, {
@@ -420,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        showToast('Your ride offer was removed.', 'info');
+        showToast('Sua oferta de carona foi removida.', 'info');
         verifiedAttendee = null;
         activeRideForDriver = null;
         offerDetailsStep.style.display = 'none';
@@ -428,18 +427,18 @@ document.addEventListener('DOMContentLoaded', () => {
         driverEmailInput.value = '';
         fetchRides();
       } else {
-        showToast(data.message || 'Could not remove ride.', 'error');
+        showToast(data.message || 'Não foi possível remover a carona.', 'error');
       }
     } catch (err) {
-      console.error('Delete error:', err);
-      showToast('Network error removing ride.', 'error');
+      console.error('Erro ao excluir:', err);
+      showToast('Erro de conexão ao remover a carona.', 'error');
     } finally {
       btnRemoveOffer.disabled = false;
-      btnRemoveOffer.textContent = 'Cancel & Remove My Ride Offer';
+      btnRemoveOffer.textContent = 'Cancelar e Remover Minha Carona';
     }
   });
 
-  // --- Organizer Modal Logic ---
+  // --- Lógica do Modal do Organizador ---
   btnOpenOrganizer.addEventListener('click', () => {
     organizerModal.classList.add('active');
     if (organizerPasscode) {
@@ -462,14 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Organizer Login
+  // Login do Organizador
   organizerLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const passcode = organizerPasscodeInput.value.trim();
     if (!passcode) return;
 
     btnLoginOrganizer.disabled = true;
-    btnLoginOrganizer.textContent = 'Authenticating...';
+    btnLoginOrganizer.textContent = 'Autenticando...';
     organizerLoginError.style.display = 'none';
 
     try {
@@ -486,29 +485,29 @@ document.addEventListener('DOMContentLoaded', () => {
         organizerPasscodeInput.value = '';
         checkAndLoadOrganizerDashboard();
       } else {
-        organizerLoginError.textContent = data.message || 'Invalid passcode.';
+        organizerLoginError.textContent = data.message || 'Senha incorreta.';
         organizerLoginError.style.display = 'block';
       }
     } catch (err) {
-      console.error('Organizer login error:', err);
-      organizerLoginError.textContent = 'Network error authenticating.';
+      console.error('Erro no login do organizador:', err);
+      organizerLoginError.textContent = 'Erro de conexão ao autenticar.';
       organizerLoginError.style.display = 'block';
     } finally {
       btnLoginOrganizer.disabled = false;
-      btnLoginOrganizer.textContent = 'Access Dashboard';
+      btnLoginOrganizer.textContent = 'Acessar Painel';
     }
   });
 
-  // Logout / Lock Organizer
+  // Bloquear Painel do Organizador
   btnLogoutOrganizer.addEventListener('click', () => {
     organizerPasscode = '';
     sessionStorage.removeItem('organizer_passcode');
     organizerAuthSection.style.display = 'block';
     organizerDashboardSection.style.display = 'none';
-    showToast('Organizer panel locked.');
+    showToast('Painel do organizador bloqueado.');
   });
 
-  // Load Dashboard Data
+  // Carregar Dados do Painel
   async function checkAndLoadOrganizerDashboard() {
     try {
       const res = await fetch('/api/organizer/stats', {
@@ -526,21 +525,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderOrganizerRides(data.rides);
       } else {
-        // Invalid session
+        // Sessão inválida
         sessionStorage.removeItem('organizer_passcode');
         organizerPasscode = '';
         organizerAuthSection.style.display = 'block';
         organizerDashboardSection.style.display = 'none';
       }
     } catch (err) {
-      console.error('Error fetching organizer stats:', err);
+      console.error('Erro ao carregar estatísticas do organizador:', err);
     }
   }
 
   function renderOrganizerRides(rides) {
     organizerRidesList.innerHTML = '';
     if (!rides || rides.length === 0) {
-      organizerRidesList.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted);">No active ride listings currently.</p>';
+      organizerRidesList.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted);">Nenhuma carona ativa no momento.</p>';
       return;
     }
 
@@ -549,23 +548,23 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;';
       item.innerHTML = `
         <div>
-          <strong>${escapeHTML(ride.driverName)}</strong> (${escapeHTML(ride.departureTime)}) - ${ride.seats} seats
+          <strong>${escapeHTML(ride.driverName)}</strong> (${escapeHTML(ride.departureTime)}) - ${ride.seats} vagas
           <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHTML(ride.phone)}</div>
         </div>
         <button class="btn-neutral" style="padding: 4px 8px; font-size: 0.75rem; color: var(--danger);" data-ride-id="${ride.id}">
-          Remove
+          Remover
         </button>
       `;
 
       item.querySelector('button').addEventListener('click', async () => {
-        if (!confirm(`Remove ride by ${ride.driverName}?`)) return;
+        if (!confirm(`Remover a carona de ${ride.driverName}?`)) return;
         try {
           const res = await fetch(`/api/organizer/rides/${ride.id}`, {
             method: 'DELETE',
             headers: { 'x-organizer-passcode': organizerPasscode }
           });
           if (res.ok) {
-            showToast('Ride removed by organizer.');
+            showToast('Carona removida pelo organizador.');
             checkAndLoadOrganizerDashboard();
             fetchRides();
           }
@@ -578,7 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CSV Drag & Drop / File Input Handling ---
+  // --- Manipulação de Arquivo CSV (Drag & Drop e Input) ---
   csvDropzone.addEventListener('click', () => csvFileInput.click());
 
   csvDropzone.addEventListener('dragover', (e) => {
@@ -606,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleSelectedCSV(file) {
     if (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv') {
-      showToast('Please select a valid .csv file.', 'error');
+      showToast('Por favor, selecione um arquivo .csv válido.', 'error');
       return;
     }
 
@@ -616,34 +615,34 @@ document.addEventListener('DOMContentLoaded', () => {
       processPendingCSV(file.name);
     };
     reader.onerror = () => {
-      showToast('Error reading the selected file.', 'error');
+      showToast('Erro ao ler o arquivo selecionado.', 'error');
     };
     reader.readAsText(file);
   }
 
-  // Preview and validate pending CSV on client, then send to server
+  // Pré-visualização do CSV antes da confirmação
   async function processPendingCSV(filename) {
     csvErrorBox.style.display = 'none';
     csvPreviewBox.style.display = 'none';
 
     if (!pendingCSVContent || !pendingCSVContent.trim()) {
-      showToast('The selected CSV file is empty.', 'error');
+      showToast('O arquivo CSV selecionado está vazio.', 'error');
       return;
     }
 
     const lines = pendingCSVContent.split(/\r?\n/).filter(l => l.trim().length > 0);
     const rowCount = Math.max(0, lines.length - 1);
 
-    previewSummaryText.textContent = `File "${filename}" with ${rowCount} attendee rows detected. Ready to validate and import.`;
+    previewSummaryText.textContent = `Arquivo "${filename}" com ${rowCount} participantes detectados. Pronto para validar e importar.`;
     csvPreviewBox.style.display = 'block';
   }
 
-  // Confirm Import
+  // Confirmar Importação
   btnConfirmImport.addEventListener('click', async () => {
     if (!pendingCSVContent) return;
 
     btnConfirmImport.disabled = true;
-    btnConfirmImport.textContent = 'Validating & Importing...';
+    btnConfirmImport.textContent = 'Validando e Importando...';
     csvErrorBox.style.display = 'none';
 
     try {
@@ -665,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAndLoadOrganizerDashboard();
         fetchRides();
       } else {
-        // Display validation errors
+        // Exibir erros de validação
         csvErrorList.innerHTML = '';
         if (data.errors && data.errors.length > 0) {
           data.errors.forEach(err => {
@@ -675,21 +674,21 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         } else {
           const li = document.createElement('li');
-          li.textContent = data.message || 'Failed to import CSV file.';
+          li.textContent = data.message || 'Falha ao importar arquivo CSV.';
           csvErrorList.appendChild(li);
         }
         csvErrorBox.style.display = 'block';
-        showToast('Please fix the CSV errors shown above.', 'error');
+        showToast('Por favor, corrija os erros do CSV exibidos acima.', 'error');
       }
     } catch (err) {
-      console.error('Import error:', err);
-      showToast('Network error during CSV import.', 'error');
+      console.error('Erro na importação:', err);
+      showToast('Erro de conexão durante a importação do CSV.', 'error');
     } finally {
       btnConfirmImport.disabled = false;
-      btnConfirmImport.textContent = 'Save & Update Attendee Roster';
+      btnConfirmImport.textContent = 'Salvar e Atualizar Lista de Participantes';
     }
   });
 
-  // --- Initial Load ---
+  // --- Carregamento Inicial ---
   fetchRides();
 });

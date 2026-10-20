@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Simple, practical ride coordination for our church event. Find seats or offer a ride to church family members.">
-  <title>Church Event Ride Sharing | Caronas da Igreja</title>
+  <meta name="description" content="Coordenação simples e prática de caronas para o evento da igreja. Encontre vagas ou ofereça uma carona para irmãos e participantes.">
+  <title>Caronas da Igreja | Coordenação Solidária</title>
   
   <!-- Modern Typography from Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,12 +23,12 @@
           <span>✝</span>
         </div>
         <div class="brand-text">
-          <h1>Church Event Rides</h1>
-          <p>Community Carpool & Coordination</p>
+          <h1>Caronas da Igreja</h1>
+          <p>Coordenação de Caronas da Comunidade</p>
         </div>
       </div>
-      <button id="btnOpenOrganizer" class="organizer-btn-header" aria-label="Open Organizer Setup">
-        <span aria-hidden="true">⚙️</span> Organizer
+      <button id="btnOpenOrganizer" class="organizer-btn-header" aria-label="Abrir Área do Organizador">
+        <span aria-hidden="true">⚙️</span> Organizador
       </button>
     </div>
   </header>
@@ -36,260 +36,260 @@
   <!-- Main Content -->
   <main class="main-content">
 
-    <!-- Segmented Navigation (Two Prominent Choices) -->
-    <nav class="segmented-nav" aria-label="Ride Choices">
+    <!-- Segmented Navigation (Duas escolhas principais) -->
+    <nav class="segmented-nav" aria-label="Opções de Carona">
       <button id="tabBtnFind" class="nav-tab active" data-tab="find">
-        <span>🚗 Find a ride</span>
+        <span>🚗 Encontrar carona</span>
         <span id="ridesCountBadge" class="badge">0</span>
       </button>
       <button id="tabBtnOffer" class="nav-tab" data-tab="offer">
-        <span>🤝 Offer a ride</span>
+        <span>🤝 Oferecer carona</span>
       </button>
     </nav>
 
-    <!-- Tab 1: Find a Ride Screen -->
+    <!-- Tab 1: Encontrar Carona -->
     <section id="paneFind" class="tab-pane active" aria-labelledby="tabBtnFind">
       
-      <!-- Helpful Guidance Notice -->
+      <!-- Aviso de Orientação -->
       <div class="info-banner">
         <div class="info-banner-icon" aria-hidden="true">ℹ️</div>
         <div>
-          <strong>Arrange details directly:</strong> Tap the phone number on any ride to call or text the driver and coordinate your exact pickup spot.
+          <strong>Combine os detalhes diretamente:</strong> Toque no telefone de qualquer carona para ligar ou enviar mensagem ao motorista e combinar o local exato de embarque.
         </div>
       </div>
 
-      <!-- Search & Refresh Control -->
+      <!-- Barra de Busca e Atualização -->
       <div class="filter-bar">
         <div class="search-input-wrap">
           <span class="search-icon" aria-hidden="true">🔍</span>
-          <input type="search" id="rideSearchInput" placeholder="Filter by driver name or time..." autocomplete="off">
+          <input type="search" id="rideSearchInput" placeholder="Filtrar por nome do motorista ou horário..." autocomplete="off">
         </div>
-        <button id="btnRefreshRides" class="btn-icon-refresh" title="Refresh rides list" aria-label="Refresh rides list">
+        <button id="btnRefreshRides" class="btn-icon-refresh" title="Atualizar lista de caronas" aria-label="Atualizar lista de caronas">
           ↻
         </button>
       </div>
 
-      <!-- Active Rides List Container -->
+      <!-- Lista de Caronas Ativas -->
       <div id="ridesListContainer" class="rides-list" role="feed" aria-busy="false">
-        <!-- Rendered dynamically by JavaScript -->
+        <!-- Renderizado dinamicamente via JavaScript -->
       </div>
 
-      <!-- Empty State (Shown when no rides match or none exist) -->
+      <!-- Estado Vazio (quando não houver caronas) -->
       <div id="ridesEmptyState" class="empty-state" style="display: none;">
         <div class="empty-state-icon" aria-hidden="true">🚗</div>
-        <h3>No rides offered yet</h3>
-        <p>Heading to the church event with empty seats? Help a brother or sister by offering a ride!</p>
-        <button id="btnGoToOffer" class="btn-secondary">Offer the First Ride</button>
+        <h3>Nenhuma carona oferecida ainda</h3>
+        <p>Indo para o evento da igreja e tem vagas sobrando no carro? Ajude um irmão ou irmã oferecendo uma carona!</p>
+        <button id="btnGoToOffer" class="btn-secondary">Oferecer a Primeira Carona</button>
       </div>
     </section>
 
-    <!-- Tab 2: Offer a Ride Screen -->
+    <!-- Tab 2: Oferecer Carona -->
     <section id="paneOffer" class="tab-pane" aria-labelledby="tabBtnOffer">
       
-      <!-- Step 1: Attendee Verification -->
+      <!-- Etapa 1: Verificação do Participante -->
       <div id="offerVerifyStep" class="form-card">
         <div class="form-header">
-          <h2>Driver Verification</h2>
-          <p>Please enter your registered church event email. We'll verify you against the attendee roster.</p>
+          <h2>Verificação do Motorista</h2>
+          <p>Por favor, digite o seu e-mail cadastrado no evento da igreja. Vamos verificar seus dados na lista de participantes.</p>
         </div>
 
-        <!-- Verification Error Message Box -->
+        <!-- Mensagem de Erro na Verificação -->
         <div id="verifyErrorBox" class="alert-error" style="display: none;">
-          <h4>⚠️ Email Not Found</h4>
-          <p id="verifyErrorMessage">We couldn't find this email on the attendee list. Please contact the church event organizers to get registered.</p>
+          <h4>⚠️ E-mail Não Encontrado</h4>
+          <p id="verifyErrorMessage">Não encontramos este e-mail na lista de participantes. Por favor, entre em contato com os organizadores do evento para se cadastrar.</p>
         </div>
 
         <form id="verifyEmailForm" onsubmit="return false;">
           <div class="form-group">
-            <label class="form-label" for="driverEmailInput">Event Email Address</label>
-            <input type="email" id="driverEmailInput" class="form-input" placeholder="e.g. sarah.j@example.com" required autocomplete="email">
-            <div class="form-hint">Must match your registration with the church event organizers.</div>
+            <label class="form-label" for="driverEmailInput">E-mail do Evento</label>
+            <input type="email" id="driverEmailInput" class="form-input" placeholder="ex: sarah.j@exemplo.com" required autocomplete="email">
+            <div class="form-hint">Deve corresponder ao seu cadastro com os organizadores do evento.</div>
           </div>
 
           <button type="submit" id="btnVerifyEmail" class="btn-primary">
-            <span>Verify & Continue</span> →
+            <span>Verificar e Continuar</span> →
           </button>
         </form>
       </div>
 
-      <!-- Step 2: Matched Attendee & Offer Details Form -->
+      <!-- Etapa 2: Confirmação e Dados da Carona -->
       <div id="offerDetailsStep" class="form-card" style="display: none;">
         <div class="form-header">
-          <h2>Offer Details</h2>
-          <p>Confirm your ride information for church attendees.</p>
+          <h2>Detalhes da Carona</h2>
+          <p>Confirme os dados da sua carona para os participantes.</p>
         </div>
 
-        <!-- Verified Profile Display (Name & Phone from CSV) -->
+        <!-- Exibição do Perfil Verificado (Nome e Telefone do CSV) -->
         <div class="verified-profile-box">
           <div class="verified-profile-details">
-            <div class="verified-check-badge">✓ Verified Attendee</div>
-            <h4 id="verifiedDriverName">Driver Name</h4>
-            <p id="verifiedDriverPhone">Phone: (555) 000-0000</p>
+            <div class="verified-check-badge">✓ Participante Confirmado</div>
+            <h4 id="verifiedDriverName">Nome do Motorista</h4>
+            <p id="verifiedDriverPhone">Telefone cadastrado: (11) 90000-0000</p>
           </div>
-          <button type="button" id="btnChangeEmail" class="btn-neutral" style="padding: 6px 10px; font-size: 0.8rem;">Change</button>
+          <button type="button" id="btnChangeEmail" class="btn-neutral" style="padding: 6px 10px; font-size: 0.8rem;">Alterar</button>
         </div>
 
-        <!-- Active Offer Banner (If driver already has an offer published) -->
+        <!-- Alerta de Carona Ativa Existente -->
         <div id="existingOfferAlert" class="existing-offer-box" style="display: none;">
-          <h4>⚡ You have an active ride offer</h4>
-          <p id="existingOfferSummary">Current listing: Departure at 8:30 AM, 3 seats available.</p>
+          <h4>⚡ Você já tem uma carona ativa</h4>
+          <p id="existingOfferSummary">Oferta atual: Saída às 08:30, 3 vagas disponíveis.</p>
         </div>
 
         <form id="publishRideForm" onsubmit="return false;">
           
-          <!-- Departure Time Input -->
+          <!-- Horário de Saída -->
           <div class="form-group">
-            <label class="form-label" for="departureTimeInput">Departure Time</label>
-            <input type="text" id="departureTimeInput" class="form-input" placeholder="e.g. Sunday 8:30 AM" required>
+            <label class="form-label" for="departureTimeInput">Horário de Saída</label>
+            <input type="text" id="departureTimeInput" class="form-input" placeholder="ex: Domingo 08:30" required>
             
-            <!-- Quick Suggestion Chips -->
+            <!-- Sugestões Rápidas de Horário -->
             <div class="chips-row">
-              <button type="button" class="chip-btn" data-time="Sunday 8:30 AM">Sunday 8:30 AM</button>
-              <button type="button" class="chip-btn" data-time="Sunday 9:00 AM">Sunday 9:00 AM</button>
-              <button type="button" class="chip-btn" data-time="Sunday 10:15 AM">Sunday 10:15 AM</button>
-              <button type="button" class="chip-btn" data-time="Sunday 5:30 PM">Sunday 5:30 PM</button>
-              <button type="button" class="chip-btn" data-time="Sunday 6:30 PM">Sunday 6:30 PM</button>
+              <button type="button" class="chip-btn" data-time="Domingo 08:30">Domingo 08:30</button>
+              <button type="button" class="chip-btn" data-time="Domingo 09:00">Domingo 09:00</button>
+              <button type="button" class="chip-btn" data-time="Domingo 10:15">Domingo 10:15</button>
+              <button type="button" class="chip-btn" data-time="Domingo 17:30">Domingo 17:30</button>
+              <button type="button" class="chip-btn" data-time="Domingo 18:30">Domingo 18:30</button>
             </div>
           </div>
 
-          <!-- Seats Counter Stepper -->
+          <!-- Contador de Vagas -->
           <div class="form-group">
-            <label class="form-label">Available Seats</label>
+            <label class="form-label">Vagas Disponíveis</label>
             <div class="stepper-wrap">
-              <button type="button" id="btnSeatMinus" class="stepper-btn" aria-label="Decrease seats">−</button>
+              <button type="button" id="btnSeatMinus" class="stepper-btn" aria-label="Diminuir vagas">−</button>
               <span id="seatsDisplay" class="stepper-val">3</span>
-              <button type="button" id="btnSeatPlus" class="stepper-btn" aria-label="Increase seats">+</button>
+              <button type="button" id="btnSeatPlus" class="stepper-btn" aria-label="Aumentar vagas">+</button>
               <input type="hidden" id="seatsHiddenInput" value="3">
             </div>
-            <div class="form-hint">Number of passengers you can comfortably take.</div>
+            <div class="form-hint">Quantidade de passageiros que você pode levar com conforto.</div>
           </div>
 
-          <!-- Quick Full Toggle for Existing Offer -->
+          <!-- Opção de Marcar como Lotada (para ofertas existentes) -->
           <div id="fullToggleGroup" class="form-group" style="display: none; margin-top: 10px;">
             <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="markFullCheckbox" style="width: 18px; height: 18px;">
-              <span>Mark this ride as <strong>Full</strong> (no seats left)</span>
+              <span>Marcar esta carona como <strong>Lotada</strong> (sem vagas no momento)</span>
             </label>
           </div>
 
-          <!-- Publish / Update Button -->
+          <!-- Botão Publicar / Atualizar -->
           <button type="submit" id="btnPublishOffer" class="btn-primary">
-            Publish Ride Offer
+            Publicar Oferta de Carona
           </button>
 
-          <!-- Cancel / Remove Button (shown when editing existing offer) -->
+          <!-- Botão Cancelar / Remover Carona -->
           <button type="button" id="btnRemoveOffer" class="btn-danger-outline" style="display: none;">
-            Cancel & Remove My Ride Offer
+            Cancelar e Remover Minha Carona
           </button>
         </form>
       </div>
 
-      <!-- Step 3: Success Screen -->
+      <!-- Etapa 3: Tela de Sucesso -->
       <div id="offerSuccessStep" class="form-card success-screen" style="display: none;">
         <div class="success-icon-wrap">✓</div>
-        <h3 id="successHeading">Ride Offer Published!</h3>
-        <p id="successMessage">Your ride listing is now live. Church attendees can view your departure time and call you directly to coordinate.</p>
-        <button id="btnViewInList" class="btn-primary">View in Ride List</button>
+        <h3 id="successHeading">Oferta de Carona Publicada!</h3>
+        <p id="successMessage">Sua carona já está disponível. Os participantes da igreja podem ver seu horário de saída e ligar diretamente para você combinar os detalhes.</p>
+        <button id="btnViewInList" class="btn-primary">Ver na Lista de Caronas</button>
       </div>
 
     </section>
 
   </main>
 
-  <!-- Organizer Setup Modal -->
+  <!-- Modal do Organizador -->
   <div id="organizerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box">
       
       <div class="modal-header">
-        <h3 id="modalTitle">⚙️ Organizer Setup</h3>
-        <button id="btnCloseModal" class="modal-close-btn" aria-label="Close modal">×</button>
+        <h3 id="modalTitle">⚙️ Área do Organizador</h3>
+        <button id="btnCloseModal" class="modal-close-btn" aria-label="Fechar painel">×</button>
       </div>
 
-      <!-- Organizer Login Form (Protected by passcode) -->
+      <!-- Login do Organizador (Protegido por senha) -->
       <div id="organizerAuthSection">
         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
-          This area is for church event organizers to import the attendee roster and manage listings.
+          Esta área é exclusiva para os organizadores do evento importarem a lista de participantes e gerenciarem as caronas.
         </p>
 
         <form id="organizerLoginForm" onsubmit="return false;">
           <div class="form-group">
-            <label class="form-label" for="organizerPasscodeInput">Organizer Passcode</label>
-            <input type="password" id="organizerPasscodeInput" class="form-input" placeholder="Enter passcode" required>
-            <div class="form-hint">Default passcode: <code>church2026</code></div>
+            <label class="form-label" for="organizerPasscodeInput">Senha do Organizador</label>
+            <input type="password" id="organizerPasscodeInput" class="form-input" placeholder="Digite a senha" required>
+            <div class="form-hint">Senha padrão: <code>church2026</code></div>
           </div>
           <div id="organizerLoginError" class="alert-error" style="display: none;"></div>
-          <button type="submit" id="btnLoginOrganizer" class="btn-primary">Access Dashboard</button>
+          <button type="submit" id="btnLoginOrganizer" class="btn-primary">Acessar Painel</button>
         </form>
       </div>
 
-      <!-- Organizer Dashboard (Visible once authenticated) -->
+      <!-- Painel do Organizador (Visível após autenticação) -->
       <div id="organizerDashboardSection" style="display: none;">
         
-        <!-- Live Stats Overview -->
+        <!-- Estatísticas em Tempo Real -->
         <div class="stats-grid">
           <div class="stat-item">
             <div id="statAttendeeCount" class="stat-number">0</div>
-            <div class="stat-label">Attendees</div>
+            <div class="stat-label">Participantes</div>
           </div>
           <div class="stat-item">
             <div id="statActiveRides" class="stat-number">0</div>
-            <div class="stat-label">Active Rides</div>
+            <div class="stat-label">Caronas Ativas</div>
           </div>
           <div class="stat-item">
             <div id="statFullRides" class="stat-number">0</div>
-            <div class="stat-label">Full Rides</div>
+            <div class="stat-label">Caronas Lotadas</div>
           </div>
         </div>
 
-        <!-- CSV Import Section -->
+        <!-- Seção de Importação de CSV -->
         <div class="form-header" style="margin-bottom: 12px;">
-          <h4 style="font-size: 1.1rem; font-weight: 700;">Import Attendee Roster</h4>
+          <h4 style="font-size: 1.1rem; font-weight: 700;">Importar Lista de Participantes</h4>
           <p style="font-size: 0.82rem; color: var(--text-muted);">
-            Upload a CSV containing <code>name</code>, <code>email</code>, and <code>phone</code>. The raw attendee roster is stored safely and never displayed publicly.
+            Envie um arquivo CSV contendo as colunas <code>nome</code>, <code>email</code> e <code>telefone</code>. A lista de participantes é armazenada com segurança e nunca é exibida publicamente.
           </p>
         </div>
 
-        <!-- Drag & Drop Zone -->
-        <div id="csvDropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop attendee CSV file here or click to browse">
+        <!-- Área de Drag & Drop -->
+        <div id="csvDropzone" class="dropzone" tabindex="0" role="button" aria-label="Arraste o arquivo CSV aqui ou clique para selecionar">
           <div class="dropzone-icon">📄</div>
-          <h4>Drop attendee CSV here, or click to browse</h4>
-          <p>Supports .csv files formatted with name, email, phone</p>
+          <h4>Arraste o arquivo CSV aqui ou clique para selecionar</h4>
+          <p>Suporta arquivos .csv com nome, email e telefone</p>
           <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display: none;">
         </div>
 
-        <!-- CSV Validation Error Report Box -->
+        <!-- Relatório de Erros do CSV -->
         <div id="csvErrorBox" class="errors-card" style="display: none;">
-          <h5>⚠️ CSV Validation Errors:</h5>
+          <h5>⚠️ Erros de Validação no CSV:</h5>
           <ul id="csvErrorList"></ul>
         </div>
 
-        <!-- CSV Preview & Confirm Box -->
+        <!-- Pré-visualização e Confirmação -->
         <div id="csvPreviewBox" style="display: none; margin-bottom: 16px;">
           <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; font-size: 0.85rem;">
-            <p><strong>File summary:</strong> <span id="previewSummaryText"></span></p>
+            <p><strong>Resumo do arquivo:</strong> <span id="previewSummaryText"></span></p>
           </div>
           <button id="btnConfirmImport" class="btn-primary" style="margin-top: 10px;">
-            Save & Update Attendee Roster
+            Salvar e Atualizar Lista de Participantes
           </button>
         </div>
 
-        <!-- Download Sample CSV Template Link -->
+        <!-- Download do Modelo de CSV -->
         <div style="margin-top: 12px; margin-bottom: 24px; text-align: center;">
-          <a href="/api/organizer/sample-csv" class="btn-neutral" download="attendees_sample.csv" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem;">
-            📥 Download Sample CSV Template
+          <a href="/api/organizer/sample-csv" class="btn-neutral" download="participantes_modelo.csv" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+            📥 Baixar Modelo de CSV
           </a>
         </div>
 
-        <!-- Organizer Ride Moderation -->
+        <!-- Moderação de Caronas -->
         <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
-          <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 10px;">Active Rides Management</h4>
+          <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 10px;">Gerenciamento de Caronas Ativas</h4>
           <div id="organizerRidesList" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
-            <!-- Rendered by JS -->
+            <!-- Renderizado via JS -->
           </div>
         </div>
 
         <button id="btnLogoutOrganizer" class="btn-neutral" style="width: 100%; margin-top: 20px;">
-          Lock Organizer Panel
+          Bloquear Painel do Organizador
         </button>
 
       </div>
@@ -297,12 +297,12 @@
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
+  <!-- Container de Notificações Toast -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
-  <!-- Footer -->
+  <!-- Rodapé -->
   <footer class="app-footer">
-    <p>Church Event Ride Coordination &bull; Contact drivers directly to arrange details</p>
+    <p>Coordenação de Caronas do Evento da Igreja &bull; Combine diretamente com os motoristas</p>
   </footer>
 
   <script src="/js/app.js"></script>

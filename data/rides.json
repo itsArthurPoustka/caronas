@@ -1,24 +1,24 @@
 [
   {
-    "id": "ride_1792530223695_1",
-    "email": "sarah.j@example.com",
+    "id": "ride_1792531085462_1",
+    "email": "sarah.j@exemplo.com",
     "driverName": "Sarah Jenkins",
-    "phone": "(555) 234-5678",
-    "departureTime": "Sunday 8:30 AM",
+    "phone": "(11) 98765-4321",
+    "departureTime": "Domingo 08:30",
     "seats": 3,
     "isFull": false,
-    "createdAt": "2026-10-20T21:03:43.695Z",
-    "updatedAt": "2026-10-20T21:03:43.696Z"
+    "createdAt": "2026-10-20T21:18:05.462Z",
+    "updatedAt": "2026-10-20T21:18:05.462Z"
   },
   {
-    "id": "ride_1792530223696_2",
-    "email": "david.m@example.com",
+    "id": "ride_1792531085462_2",
+    "email": "david.m@exemplo.com",
     "driverName": "David Miller",
-    "phone": "(555) 345-6789",
-    "departureTime": "Sunday 9:00 AM",
+    "phone": "(11) 97654-3210",
+    "departureTime": "Domingo 09:00",
     "seats": 2,
     "isFull": false,
-    "createdAt": "2026-10-20T21:03:43.696Z",
-    "updatedAt": "2026-10-20T21:03:43.696Z"
+    "createdAt": "2026-10-20T21:18:05.462Z",
+    "updatedAt": "2026-10-20T21:18:05.462Z"
   }
 ]

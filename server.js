@@ -131,7 +131,7 @@ function parseCSV(text) {
 function validateAndParseAttendeeCSV(csvText) {
   const parsed = parseCSV(csvText);
   if (parsed.length === 0) {
-    return { success: false, errors: ['The uploaded CSV file is empty.'] };
+    return { success: false, errors: ['O arquivo CSV enviado está vazio.'] };
   }
 
   const headerRow = parsed[0].map(h => h.trim().toLowerCase());
@@ -152,14 +152,14 @@ function validateAndParseAttendeeCSV(csvText) {
   });
 
   const missingColumns = [];
-  if (nameIdx === -1) missingColumns.push('"name" (or "Nome")');
-  if (emailIdx === -1) missingColumns.push('"email" (or "E-mail")');
-  if (phoneIdx === -1) missingColumns.push('"phone" (or "Telefone")');
+  if (nameIdx === -1) missingColumns.push('"nome" (ou "name")');
+  if (emailIdx === -1) missingColumns.push('"email" (ou "e-mail")');
+  if (phoneIdx === -1) missingColumns.push('"telefone" (ou "phone", "whatsapp")');
 
   if (missingColumns.length > 0) {
     return {
       success: false,
-      errors: [`Missing required columns in CSV header: ${missingColumns.join(', ')}. Please ensure the header row includes: name, email, phone.`]
+      errors: [`Colunas obrigatórias ausentes no cabeçalho do CSV: ${missingColumns.join(', ')}. Certifique-se de que a primeira linha inclua: nome, email, telefone.`]
     };
   }
 
@@ -181,23 +181,23 @@ function validateAndParseAttendeeCSV(csvText) {
 
     const rowErrors = [];
     if (!rawName) {
-      rowErrors.push('Missing attendee name');
+      rowErrors.push('Nome do participante ausente');
     }
     if (!rawEmail) {
-      rowErrors.push('Missing email address');
+      rowErrors.push('E-mail ausente');
     } else if (!emailRegex.test(rawEmail)) {
-      rowErrors.push(`Invalid email format ("${rawEmail}")`);
+      rowErrors.push(`Formato de e-mail inválido ("${rawEmail}")`);
     }
     if (!rawPhone) {
-      rowErrors.push('Missing phone number');
+      rowErrors.push('Número de telefone ausente');
     }
 
     if (rowErrors.length > 0) {
-      errors.push(`Row ${rowNum}: ${rowErrors.join(', ')}`);
+      errors.push(`Linha ${rowNum}: ${rowErrors.join(', ')}`);
     } else {
       const normalized = normalizeEmail(rawEmail);
       if (emailSet.has(normalized)) {
-        errors.push(`Row ${rowNum}: Duplicate email "${rawEmail}" found in CSV.`);
+        errors.push(`Linha ${rowNum}: E-mail duplicado "${rawEmail}" encontrado no CSV.`);
       } else {
         emailSet.add(normalized);
         attendees.push({
@@ -222,7 +222,7 @@ function validateAndParseAttendeeCSV(csvText) {
   if (attendees.length === 0) {
     return {
       success: false,
-      errors: ['No valid attendee records found after header row.']
+      errors: ['Nenhum participante válido encontrado após o cabeçalho.']
     };
   }
 
@@ -233,18 +233,18 @@ function validateAndParseAttendeeCSV(csvText) {
   };
 }
 
-// Sample attendee CSV generation
-const sampleCsvContent = `name,email,phone
-Sarah Jenkins,sarah.j@example.com,(555) 234-5678
-David Miller,david.m@example.com,(555) 345-6789
-Rebecca Santos,rebecca.santos@example.com,(555) 456-7890
-Marcus Thorne,marcus.t@example.com,(555) 567-8901
-Elena Rostova,elena.r@example.com,(555) 678-9012
-Pastor Johnathan Vance,pastor.john@example.com,(555) 789-0123
-Grace O'Connor,grace.oc@example.com,(555) 890-1234
-Mateo Silva,mateo.silva@example.com,(555) 901-2345
-Hannah Abbott,hannah.a@example.com,(555) 123-4567
-Daniel Washington,daniel.w@example.com,(555) 234-9876`;
+// Sample attendee CSV generation (Portuguese BR)
+const sampleCsvContent = `nome,email,telefone
+Sarah Jenkins,sarah.j@exemplo.com,(11) 98765-4321
+David Miller,david.m@exemplo.com,(11) 97654-3210
+Rebeca Santos,rebeca.santos@exemplo.com,(21) 98123-4567
+Marcos Silveira,marcos.s@exemplo.com,(31) 99234-5678
+Helena Ramos,helena.r@exemplo.com,(41) 98877-6655
+Pastor Jonathan Alencar,pastor.jonathan@exemplo.com,(11) 99111-2233
+Graça Oliveira,graca.o@exemplo.com,(19) 98456-7890
+Mateo Silva,mateo.silva@exemplo.com,(85) 99765-4321
+Ana Beatriz Souza,ana.souza@exemplo.com,(61) 98222-3344
+Daniel Nogueira,daniel.n@exemplo.com,(71) 98333-4455`;
 
 // Seed initial sample data if no attendees file exists
 function seedSampleDataIfNeeded() {
@@ -270,7 +270,7 @@ function seedSampleDataIfNeeded() {
         email: attendees[0].email,
         driverName: attendees[0].name,
         phone: attendees[0].phone,
-        departureTime: 'Sunday 8:30 AM',
+        departureTime: 'Domingo 08:30',
         seats: 3,
         isFull: false,
         createdAt: new Date().toISOString(),
@@ -281,7 +281,7 @@ function seedSampleDataIfNeeded() {
         email: attendees[1].email,
         driverName: attendees[1].name,
         phone: attendees[1].phone,
-        departureTime: 'Sunday 9:00 AM',
+        departureTime: 'Domingo 09:00',
         seats: 2,
         isFull: false,
         createdAt: new Date().toISOString(),
@@ -328,7 +328,7 @@ app.get('/api/rides', (req, res) => {
 app.post('/api/verify-email', (req, res) => {
   const { email } = req.body;
   if (!email || !String(email).trim()) {
-    return res.status(400).json({ success: false, message: 'Please enter your event email address.' });
+    return res.status(400).json({ success: false, message: 'Por favor, digite o seu e-mail do evento.' });
   }
 
   const normalized = normalizeEmail(email);
@@ -339,7 +339,7 @@ app.post('/api/verify-email', (req, res) => {
     return res.status(404).json({
       success: false,
       found: false,
-      message: 'Email not found on the registered attendee list. Please contact the church event organizers so they can add you to the attendee roster.'
+      message: 'E-mail não encontrado na lista de participantes. Por favor, entre em contato com os organizadores do evento da igreja para se cadastrar.'
     });
   }
 
@@ -370,7 +370,7 @@ app.post('/api/rides', (req, res) => {
   const { email, departureTime, seats } = req.body;
 
   if (!email || !String(email).trim()) {
-    return res.status(400).json({ success: false, message: 'Email is required.' });
+    return res.status(400).json({ success: false, message: 'O e-mail é obrigatório.' });
   }
 
   const normalized = normalizeEmail(email);
@@ -380,18 +380,18 @@ app.post('/api/rides', (req, res) => {
   if (!attendee) {
     return res.status(403).json({
       success: false,
-      message: 'Unauthorized: Email is not on the church attendee list. Contact the event organizers to register.'
+      message: 'Não autorizado: Este e-mail não consta na lista de participantes da igreja. Entre em contato com a organização.'
     });
   }
 
   const cleanedDepartureTime = String(departureTime || '').trim();
   if (!cleanedDepartureTime) {
-    return res.status(400).json({ success: false, message: 'Please provide your planned departure time.' });
+    return res.status(400).json({ success: false, message: 'Por favor, informe o horário de saída previsto.' });
   }
 
   const seatsNum = parseInt(seats, 10);
   if (isNaN(seatsNum) || seatsNum < 1 || seatsNum > 20) {
-    return res.status(400).json({ success: false, message: 'Available seats must be between 1 and 20.' });
+    return res.status(400).json({ success: false, message: 'O número de vagas deve ser entre 1 e 20.' });
   }
 
   const rides = readJSON(RIDES_FILE, []);
@@ -428,7 +428,7 @@ app.post('/api/rides', (req, res) => {
 
   return res.json({
     success: true,
-    message: existingIndex >= 0 ? 'Your ride offer was updated successfully.' : 'Your ride offer is now published!',
+    message: existingIndex >= 0 ? 'Sua oferta de carona foi atualizada com sucesso.' : 'Sua oferta de carona foi publicada com sucesso!',
     ride: {
       id: savedRide.id,
       driverName: savedRide.driverName,
@@ -446,7 +446,7 @@ app.patch('/api/rides/:id', (req, res) => {
   const { email, departureTime, seats, isFull } = req.body;
 
   if (!email) {
-    return res.status(400).json({ success: false, message: 'Driver email is required to verify ownership.' });
+    return res.status(400).json({ success: false, message: 'O e-mail do motorista é obrigatório para verificar a autoria.' });
   }
 
   const normalized = normalizeEmail(email);
@@ -454,23 +454,23 @@ app.patch('/api/rides/:id', (req, res) => {
   const rideIndex = rides.findIndex(r => r.id === id);
 
   if (rideIndex === -1) {
-    return res.status(404).json({ success: false, message: 'Ride offer not found.' });
+    return res.status(404).json({ success: false, message: 'Oferta de carona não encontrada.' });
   }
 
   if (rides[rideIndex].email !== normalized) {
-    return res.status(403).json({ success: false, message: 'Unauthorized: Email does not match this ride listing.' });
+    return res.status(403).json({ success: false, message: 'Não autorizado: O e-mail não corresponde a esta oferta de carona.' });
   }
 
   if (departureTime !== undefined) {
     const cleaned = String(departureTime).trim();
-    if (!cleaned) return res.status(400).json({ success: false, message: 'Departure time cannot be empty.' });
+    if (!cleaned) return res.status(400).json({ success: false, message: 'O horário de saída não pode ficar vazio.' });
     rides[rideIndex].departureTime = cleaned;
   }
 
   if (seats !== undefined) {
     const seatsNum = parseInt(seats, 10);
     if (isNaN(seatsNum) || seatsNum < 0 || seatsNum > 20) {
-      return res.status(400).json({ success: false, message: 'Seats must be between 0 and 20.' });
+      return res.status(400).json({ success: false, message: 'O número de vagas deve ser entre 0 e 20.' });
     }
     rides[rideIndex].seats = seatsNum;
   }
@@ -484,7 +484,7 @@ app.patch('/api/rides/:id', (req, res) => {
 
   return res.json({
     success: true,
-    message: 'Ride updated successfully.',
+    message: 'Carona atualizada com sucesso.',
     ride: {
       id: rides[rideIndex].id,
       driverName: rides[rideIndex].driverName,
@@ -502,7 +502,7 @@ app.delete('/api/rides/:id', (req, res) => {
   const email = req.query.email || req.body.email;
 
   if (!email) {
-    return res.status(400).json({ success: false, message: 'Driver email is required to remove this listing.' });
+    return res.status(400).json({ success: false, message: 'O e-mail do motorista é obrigatório para remover esta oferta.' });
   }
 
   const normalized = normalizeEmail(email);
@@ -510,17 +510,17 @@ app.delete('/api/rides/:id', (req, res) => {
   const rideIndex = rides.findIndex(r => r.id === id);
 
   if (rideIndex === -1) {
-    return res.status(404).json({ success: false, message: 'Ride offer not found.' });
+    return res.status(404).json({ success: false, message: 'Oferta de carona não encontrada.' });
   }
 
   if (rides[rideIndex].email !== normalized) {
-    return res.status(403).json({ success: false, message: 'Unauthorized: Email does not match this ride listing.' });
+    return res.status(403).json({ success: false, message: 'Não autorizado: O e-mail não corresponde a esta oferta de carona.' });
   }
 
   rides.splice(rideIndex, 1);
   writeJSON(RIDES_FILE, rides);
 
-  return res.json({ success: true, message: 'Your ride offer has been removed.' });
+  return res.json({ success: true, message: 'Sua oferta de carona foi removida com sucesso.' });
 });
 
 // --- ORGANIZER ENDPOINTS ---
@@ -530,7 +530,7 @@ function checkOrganizerPasscode(req, res, next) {
   if (!passcode || String(passcode).trim() !== ORGANIZER_PASSCODE) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid organizer passcode. Please check the code with event management.'
+      message: 'Senha do organizador incorreta. Por favor, verifique com a organização do evento.'
     });
   }
   next();
@@ -540,9 +540,9 @@ function checkOrganizerPasscode(req, res, next) {
 app.post('/api/organizer/login', (req, res) => {
   const { passcode } = req.body;
   if (!passcode || String(passcode).trim() !== ORGANIZER_PASSCODE) {
-    return res.status(401).json({ success: false, message: 'Invalid organizer passcode.' });
+    return res.status(401).json({ success: false, message: 'Senha do organizador incorreta.' });
   }
-  return res.json({ success: true, message: 'Passcode verified.' });
+  return res.json({ success: true, message: 'Senha verificada com sucesso.' });
 });
 
 // Organizer Stats & Summary (never exposes full raw attendee records to public)
@@ -579,7 +579,7 @@ app.post('/api/organizer/import-csv', checkOrganizerPasscode, (req, res) => {
   }
 
   if (!csvText || !csvText.trim()) {
-    return res.status(400).json({ success: false, errors: ['No CSV content provided.'] });
+    return res.status(400).json({ success: false, errors: ['Nenhum conteúdo CSV foi enviado.'] });
   }
 
   const result = validateAndParseAttendeeCSV(csvText);
@@ -615,7 +615,7 @@ app.post('/api/organizer/import-csv', checkOrganizerPasscode, (req, res) => {
   return res.json({
     success: true,
     count: result.count,
-    message: `Successfully imported and verified ${result.count} church event attendees.`
+    message: `Lista de participantes importada com sucesso: ${result.count} pessoas cadastradas.`
   });
 });
 
@@ -626,19 +626,19 @@ app.delete('/api/organizer/rides/:id', checkOrganizerPasscode, (req, res) => {
   const index = rides.findIndex(r => r.id === id);
 
   if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Ride not found.' });
+    return res.status(404).json({ success: false, message: 'Carona não encontrada.' });
   }
 
   rides.splice(index, 1);
   writeJSON(RIDES_FILE, rides);
 
-  return res.json({ success: true, message: 'Ride listing removed by organizer.' });
+  return res.json({ success: true, message: 'Oferta de carona removida pelo organizador.' });
 });
 
 // Download sample CSV template
 app.get('/api/organizer/sample-csv', (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="attendees_sample.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="participantes_modelo.csv"');
   res.send(sampleCsvContent);
 });
 
