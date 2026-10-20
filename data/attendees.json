@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Pastor Johnathan Vance",
+    "email": "pastor.john@example.com",
+    "displayEmail": "pastor.john@example.com",
+    "phone": "(555) 789-0123"
+  },
+  {
+    "name": "Sarah Jenkins",
+    "email": "sarah.j@example.com",
+    "displayEmail": "sarah.j@example.com",
+    "phone": "(555) 234-5678"
+  },
+  {
+    "name": "David Miller",
+    "email": "david.m@example.com",
+    "displayEmail": "david.m@example.com",
+    "phone": "(555) 345-6789"
+  },
+  {
+    "name": "Grace O'Connor",
+    "email": "grace.oc@example.com",
+    "displayEmail": "grace.oc@example.com",
+    "phone": "(555) 890-1234"
+  }
+]
