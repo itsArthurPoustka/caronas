@@ -10,9 +10,9 @@ The application serves purely as a **contact and coordination tool**—it connec
 
 ### 1. Find a Ride
 - **Mobile-First Scan**: Clear, readable list of active ride offers optimized for scanning on phone screens.
-- **Offer Details**: Displays the driver's verified name, departure time, available seats badge, and a **direct tap-to-call button** (`tel:` link) plus quick SMS button.
+- **Offer Details**: Displays the driver's verified name, departure time, available seats badge, and a **direct WhatsApp button** with a pre-formatted message to start chatting instantly.
 - **Real-Time Filtering**: Search filter by driver name or departure time.
-- **Direct Contact Note**: Reminds riders to call or text drivers directly to coordinate pickup spots.
+- **Direct Contact Note**: Reminds riders to message drivers directly on WhatsApp to coordinate pickup spots.
 - **Friendly Empty State**: Warm encouraging message and direct button to offer the first ride when no offers exist yet.
 
 ### 2. Offer a Ride

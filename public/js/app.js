@@ -109,9 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
-  // --- Auxiliar: Formatar telefone para link tel: ---
-  function formatTelLink(phone) {
-    return String(phone || '').replace(/[^0-9+]/g, '');
+  // --- Auxiliar: Formatar link do WhatsApp com mensagem pré-preenchida ---
+  function formatWhatsAppLink(phone, driverName, departureTime) {
+    let digits = String(phone || '').replace(/\D/g, '');
+    // Se for número brasileiro com 10 ou 11 dígitos (DDD + número), adiciona o DDI 55
+    if (digits.length === 10 || digits.length === 11) {
+      digits = '55' + digits;
+    }
+    const message = encodeURIComponent(`Olá, ${driverName}! Vi sua oferta de carona para o evento da igreja (saída ${departureTime}) e gostaria de combinar com você.`);
+    return `https://wa.me/${digits}?text=${message}`;
   }
 
   // --- Navegação por Abas ---
@@ -177,11 +183,18 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = `ride-card ${ride.isFull ? 'full' : ''}`;
       
       const initials = getInitials(ride.driverName);
-      const telLink = formatTelLink(ride.phone);
+      const waLink = formatWhatsAppLink(ride.phone, ride.driverName, ride.departureTime);
       const seatsText = ride.isFull 
         ? '⚠️ Carona Lotada' 
         : `💺 ${ride.seats} ${ride.seats === 1 ? 'vaga livre' : 'vagas livres'}`;
       const seatsBadgeClass = ride.isFull ? 'full' : 'available';
+
+      // Ícone SVG oficial do WhatsApp
+      const waSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.11 7.44C8.95 7.44 8.68 7.5 8.46 7.74C8.23 7.98 7.6 8.57 7.6 9.77C7.6 10.97 8.48 12.13 8.6 12.29C8.72 12.45 10.31 14.9 12.76 15.96C13.35 16.21 13.8 16.36 14.16 16.48C14.76 16.67 15.3 16.65 15.74 16.58C16.22 16.51 17.22 15.97 17.43 15.39C17.63 14.8 17.63 14.3 17.57 14.2C17.51 14.1 17.36 14.04 17.13 13.92C16.9 13.8 15.77 13.24 15.56 13.16C15.35 13.08 15.2 13.04 15.05 13.28C14.9 13.51 14.46 14.04 14.33 14.2C14.2 14.36 14.07 14.38 13.84 14.26C13.61 14.14 12.87 13.9 11.99 13.12C11.31 12.51 10.84 11.76 10.71 11.53C10.58 11.3 10.7 11.17 10.81 11.06C10.92 10.95 11.05 10.78 11.17 10.64C11.29 10.5 11.33 10.4 11.41 10.24C11.49 10.08 11.45 9.94 11.39 9.82C11.33 9.7 10.9 8.61 10.71 8.18C10.53 7.76 10.35 7.82 10.21 7.81C10.08 7.81 9.93 7.81 9.77 7.81C9.62 7.81 9.38 7.87 9.17 8.09C8.96 8.31 8.38 8.87 8.38 10C8.38 11.14 9.21 12.24 9.33 12.4"/>
+        </svg>
+      `;
 
       card.innerHTML = `
         <div class="ride-card-header">
@@ -204,11 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div class="call-action-wrapper">
-          <a href="tel:${telLink}" class="btn-call" aria-label="Ligar para o motorista ${escapeHTML(ride.driverName)} no número ${escapeHTML(ride.phone)}">
-            <span aria-hidden="true">📞</span> Ligar (${escapeHTML(ride.phone)})
-          </a>
-          <a href="sms:${telLink}" class="btn-sms" title="Enviar SMS" aria-label="Enviar SMS para ${escapeHTML(ride.driverName)}">
-            <span aria-hidden="true">💬</span> SMS
+          <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" aria-label="Abrir conversa no WhatsApp com ${escapeHTML(ride.driverName)} no número ${escapeHTML(ride.phone)}">
+            ${waSvg}
+            <span>Conversar no WhatsApp (${escapeHTML(ride.phone)})</span>
           </a>
         </div>
       `;
@@ -384,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Exibir tela de sucesso
         document.getElementById('successHeading').textContent = activeRideForDriver ? 'Oferta de Carona Atualizada!' : 'Oferta de Carona Publicada!';
-        document.getElementById('successMessage').textContent = `Sua carona para ${departureTime} (${seats} ${seats === 1 ? 'vaga' : 'vagas'}) já está ativa. Os participantes podem ligar diretamente para você combinar os detalhes.`;
+        document.getElementById('successMessage').textContent = `Sua carona para ${departureTime} (${seats} ${seats === 1 ? 'vaga' : 'vagas'}) já está ativa. Os participantes podem abrir a conversa no WhatsApp diretamente com você para combinar.`;
         
         offerDetailsStep.style.display = 'none';
         offerSuccessStep.style.display = 'block';
