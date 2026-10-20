@@ -72,8 +72,40 @@ The application serves purely as a **contact and coordination tool**—it connec
    npm run dev
    ```
 
-4. **Open in browser**:
-   Navigate to [http://localhost:3000](http://localhost:3000) on your desktop or mobile browser.
+### Running with Docker (Recommended for Hosting on a Mac)
+
+Using Docker ensures the application runs in a completely isolated environment without access to host personal files, run under a non-root user (`node`), and bound strictly to `127.0.0.1:3000`:
+
+1. **Start the container**:
+   ```bash
+   docker compose up -d --build
+   ```
+2. **View logs**:
+   ```bash
+   docker compose logs -f
+   ```
+3. **Stop the container**:
+   ```bash
+   docker compose down
+   ```
+
+Data inside `./data` (`attendees.json` and `rides.json`) is persisted on the host volume, surviving container restarts.
+
+---
+
+### Exposing to the Internet via Cloudflare Tunnel
+
+To make the app securely accessible on smartphones worldwide without opening router ports:
+
+1. Install Cloudflare Tunnel on the host Mac:
+   ```bash
+   brew install cloudflared
+   ```
+2. Start the tunnel forwarding to the local Docker container:
+   ```bash
+   cloudflared tunnel --url http://127.0.0.1:3000
+   ```
+3. Share the generated HTTPS link (`https://*.trycloudflare.com`) in the church WhatsApp group!
 
 ---
 

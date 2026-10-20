@@ -1,0 +1,24 @@
+services:
+  caronas:
+    build: .
+    container_name: caronas-app
+    restart: unless-stopped
+    ports:
+      # Vincula estritamente a 127.0.0.1:
+      # Apenas o Mac local e o Cloudflare Tunnel conseguem se comunicar com o container.
+      # Impede acessos diretos de qualquer outro computador da rede local Wi-Fi.
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - ORGANIZER_PASSCODE=${ORGANIZER_PASSCODE:-church2026}
+    volumes:
+      # Persiste a lista de participantes e caronas na pasta data/ local
+      - ./data:/app/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 384M
+    security_opt:
+      - no-new-privileges:true
