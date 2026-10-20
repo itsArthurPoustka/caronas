@@ -3,9 +3,73 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ORGANIZER_PASSCODE = process.env.ORGANIZER_PASSCODE || 'church2026';
+
+// Trust proxy for Cloudflare / reverse proxy headers
+app.set('trust proxy', 1);
+
+// Security Headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// Block common automated scanner probes instantly (wp-admin, .env, php, etc.)
+const SCANNER_PROBES = [
+  '.env', '.git', 'wp-', 'php', 'cgi-bin', 'xmlrpc', 'actuator',
+  'shell', 'bash', 'cmd', 'boaform', 'admin.php', 'config.json', 'backup'
+];
+app.use((req, res, next) => {
+  const pathLower = req.path.toLowerCase();
+  if (SCANNER_PROBES.some(probe => pathLower.includes(probe))) {
+    return res.status(404).end();
+  }
+  next();
+});
+
+// General Rate Limiter (200 requests per 15 min per IP)
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Muitas requisições deste endereço. Por favor, aguarde alguns minutos.' }
+});
+app.use(generalLimiter);
+
+// Strict Rate Limiter for Attendee Email Verification (anti-scraping/enumeration)
+const verifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 25,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Muitas tentativas de verificação. Por segurança, aguarde alguns minutos.' }
+});
+app.use('/api/verify-email', verifyLimiter);
+
+// Strict Rate Limiter for Organizer Login (anti-brute-force)
+const organizerLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 6,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Muitas tentativas de senha incorretas. Acesso temporariamente bloqueado por 15 minutos.' }
+});
+app.use('/api/organizer/login', organizerLoginLimiter);
 
 const DATA_DIR = path.join(__dirname, 'data');
 const ATTENDEES_FILE = path.join(DATA_DIR, 'attendees.json');
@@ -17,11 +81,14 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.text({ type: ['text/csv', 'text/plain'], limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+// Body parsing middleware with tight limits to prevent payload abuse
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+app.use(express.text({ type: ['text/csv', 'text/plain'], limit: '5mb' }));
+app.use(express.static(path.join(__dirname, 'public'), {
+  dotfiles: 'ignore', // Never serve hidden files (.env, .git, etc.)
+  maxAge: '1h'
+}));
 
 // Helpers for data persistence
 function readJSON(filePath, defaultValue) {
